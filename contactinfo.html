@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .contact-form {
+            margin-bottom: 20px;
+        }
+        .contact-form input {
+            margin-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contact Management System</h1>
+    <div class="contact-form">
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="phone" placeholder="Phone">
+        <input type="email" id="email" placeholder="Email">
+        <button onclick="addContact()">Add Contact</button>
+    </div>
+    <div id="contact-list"></div>
+
+    <script>
+        let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+
+        function displayContacts() {
+            const contactList = document.getElementById('contact-list');
+            contactList.innerHTML = '';
+
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+
+            const headerRow = document.createElement('tr');
+            ['Name', 'Phone', 'Email', 'Actions'].forEach(text => {
+                const th = document.createElement('th');
+                th.innerText = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            contacts.forEach((contact, index) => {
+                const row = document.createElement('tr');
+
+                Object.values(contact).forEach(value => {
+                    const td = document.createElement('td');
+                    td.innerText = value;
+                    row.appendChild(td);
+                });
+
+                const actionsTd = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.innerText = 'Edit';
+                editButton.onclick = () => editContact(index);
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete';
+                deleteButton.onclick = () => deleteContact(index);
+
+                actionsTd.appendChild(editButton);
+                actionsTd.appendChild(deleteButton);
+                row.appendChild(actionsTd);
+
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            contactList.appendChild(table);
+        }
+
+        function addContact() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+
+            if (name && phone && email) {
+                contacts.push({ name, phone, email });
+                localStorage.setItem('contacts', JSON.stringify(contacts));
+                displayContacts();
+
+                document.getElementById('name').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('email').value = '';
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        function editContact(index) {
+            const name = prompt('Enter new name:', contacts[index].name);
+            const phone = prompt('Enter new phone:', contacts[index].phone);
+            const email = prompt('Enter new email:', contacts[index].email);
+
+            if (name && phone && email) {
+                contacts[index] = { name, phone, email };
+                localStorage.setItem('contacts', JSON.stringify(contacts));
+                displayContacts();
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        function deleteContact(index) {
+            contacts.splice(index, 1);
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            displayContacts();
+        }
+
+        // Initial display
+        displayContacts();
+    </script>
+</body>
+</html>
